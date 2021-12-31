@@ -7,6 +7,7 @@ let btnClearSidebar = document.getElementById('clear-sidebar')
 let cardItems;
 let cardDeleteButtons;
 let cardText = [];
+let results = [];
 
 // Input
 let input = document.getElementById('input-box');
@@ -87,16 +88,18 @@ btnClearSidebar.addEventListener("click", () => ClearSidebar())
 // Functions
 
 function Equals(){
-    AddSidebarCard();
-
     let array = [];
     array = ParseInput(input.value);
 
+    let ans = Calc(array);
+
+    AddSidebarCard(' = '+ans);
+
     console.log(array);
     
-    let ans = Calc(array);
     console.log(ans);
 
+    input.value = ans;
 }
 
 function Calc(array){
@@ -176,15 +179,17 @@ function ClearSidebar(){
 }
 
 
-function AddSidebarCard(){
+function AddSidebarCard(result){
     if (input.value != ""){
         sidebarCardHolder.innerHTML = `<div class="sidebar-item">
-                                    <button class="sidebar-item-delete"><b>X</b></button>`
-                                    + input.value +
-                                    `</div>`
-                                + sidebarCardHolder.innerHTML;
+                                        <button class="sidebar-item-delete"><b>X</b></button>
+                                        <p id="cardText">`+input.value+`</p>
+                                        <b>`+result+`</b>
+                                        </div>`
+                                        + sidebarCardHolder.innerHTML;
 
         cardText.unshift(input.value)
+        results.unshift(result);
 
         //console.log(cardText);
         
@@ -213,13 +218,15 @@ function DeleteCard(deleteIndex){
     for (let i = 0; i < cardDeleteButtons.length; i++) {
         if (i != deleteIndex){
             newArrayString += `<div class="sidebar-item">
-                                <button class="sidebar-item-delete"><b>X</b></button>`
-                                + cardText[i] +
-                                `</div>`
+                                <button class="sidebar-item-delete"><b>X</b></button>
+                                <p id="cardText">`+cardText[i]+`</p>
+                                <b>`+results[i]+`</b>
+                                </div>`
         }
     }
 
     cardText.splice(deleteIndex, 1);
+    results.splice(deleteIndex, 1);
 
     sidebarCardHolder.innerHTML = newArrayString;
 
