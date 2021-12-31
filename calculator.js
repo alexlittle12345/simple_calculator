@@ -36,7 +36,9 @@ let btnMultiply = document.getElementById('multiply');
 
 let inputPos = 0;
 
-let operators = ['-', 'x', '*', 'X', '+', '/']
+let operators = ['-', 'x', '+', '/'];
+let validChar = [')', '(', '.', '-', 'x', '+', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+let numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'];
 
 // input event listeners
 input.addEventListener("keypress", event => InputKeyPress(event))
@@ -74,7 +76,7 @@ btnDivide.addEventListener("click", () => InsertOperation('/'));
 btnPlus.addEventListener("click", () => InsertOperation('+'));
 btnMultiply.addEventListener("click", () => InsertOperation('x'));
 
-btnEquals.addEventListener("click", () => AddSidebarCard());
+btnEquals.addEventListener("click", () => Equals());
 
 btnClearSidebar.addEventListener("click", () => ClearSidebar())
 
@@ -84,6 +86,91 @@ btnClearSidebar.addEventListener("click", () => ClearSidebar())
 
 // Functions
 
+function Equals(){
+    AddSidebarCard();
+
+    let array = [];
+    array = ParseInput(input.value);
+
+    console.log(array);
+    
+    let ans = Calc(array);
+    console.log(ans);
+
+}
+
+function Calc(array){
+    let newArray = array;
+    let checkArray;
+
+    // Divide
+    checkArray = newArray.filter(el => el === '/');
+    while (checkArray.length > 0){
+        for (let i=0; i<newArray.length; i++){
+            if (newArray[i] == '/'){
+                let newArray1 = newArray.slice(0, i-1);
+                let newArray2 = newArray.slice(i+2, newArray.length);
+                let a = [newArray[i-1] / newArray[i+1]];
+                newArray = newArray1.concat(a, newArray2);
+                console.log(newArray);
+                checkArray = newArray.filter(el => el === '/');
+                break;
+            }
+        }
+    }
+
+    // multiply
+    checkArray = newArray.filter(el => el === 'x');
+    while (checkArray.length > 0){
+        for (let i=0; i<newArray.length; i++){
+            if (newArray[i] == 'x'){
+                let newArray1 = newArray.slice(0, i-1);
+                let newArray2 = newArray.slice(i+2, newArray.length);
+                let a = [newArray[i-1] * newArray[i+1]];
+                newArray = newArray1.concat(a, newArray2);
+                console.log(newArray);
+                checkArray = newArray.filter(el => el === 'x');
+                break;
+            }
+        }
+    }
+
+    // Addition
+    checkArray = newArray.filter(el => el === '+');
+    while (checkArray.length > 0){
+        for (let i=0; i<newArray.length; i++){
+            if (newArray[i] == '+'){
+                let newArray1 = newArray.slice(0, i-1);
+                let newArray2 = newArray.slice(i+2, newArray.length);
+                let a = [newArray[i-1] + newArray[i+1]];
+                newArray = newArray1.concat(a, newArray2);
+                console.log(newArray);
+                checkArray = newArray.filter(el => el === '+');
+                break;
+            }
+        }
+    }
+
+    // Subtraction
+    checkArray = newArray.filter(el => el === '-');
+    while (checkArray.length > 0){
+        for (let i=0; i<newArray.length; i++){
+            if (newArray[i] == '-'){
+                let newArray1 = newArray.slice(0, i-1);
+                let newArray2 = newArray.slice(i+2, newArray.length);
+                let a = [newArray[i-1] - newArray[i+1]];
+                newArray = newArray1.concat(a, newArray2);
+                console.log(newArray);
+                checkArray = newArray.filter(el => el === '-');
+                break;
+            }
+        }
+    }
+
+    return newArray[0];
+}
+
+
 function ClearSidebar(){
     sidebarCardHolder.innerHTML = "";
 }
@@ -92,7 +179,7 @@ function ClearSidebar(){
 function AddSidebarCard(){
     if (input.value != ""){
         sidebarCardHolder.innerHTML = `<div class="sidebar-item">
-                                    <button class="sidebar-item-delete">X</button>`
+                                    <button class="sidebar-item-delete"><b>X</b></button>`
                                     + input.value +
                                     `</div>`
                                 + sidebarCardHolder.innerHTML;
@@ -126,7 +213,7 @@ function DeleteCard(deleteIndex){
     for (let i = 0; i < cardDeleteButtons.length; i++) {
         if (i != deleteIndex){
             newArrayString += `<div class="sidebar-item">
-                                <button class="sidebar-item-delete">X</button>`
+                                <button class="sidebar-item-delete"><b>X</b></button>`
                                 + cardText[i] +
                                 `</div>`
         }
@@ -147,15 +234,7 @@ function DeleteCard(deleteIndex){
 }
 
 function InputKeyPress(event){
-    event.preventDefault();
-    let oldString = input.value;
-
-    input.value = [input.value.slice(0, inputPos), event.key, input.value.slice(inputPos)].join('');
-    inputPos = inputPos + 1;
-
-    if (CheckInputString() == false){
-        input.value = oldString;
-    }
+    
 }
 
 
@@ -165,67 +244,68 @@ function InputAddText(text){
     input.value = [input.value.slice(0, inputPos), text, input.value.slice(inputPos)].join('');
     inputPos = inputPos + 1;
     
-    if (CheckInputString() == false){
-        input.value = oldString;
-    }
+    
 }
 
 
 function CheckInputString(){
-    let inputArray = input.value.split('');
-    inputArray = JoinNumbers_ArrayFunc(inputArray)
-
-    if (inputArray.at(0) == ''){
-        return true;
-    }
-
-    for (let i=0; i<inputArray.length; i++){
-        if (!operators.includes(inputArray[i])){
-            let num = inputArray[i];
-            
-            // check if num
-            if (isNaN(num) == true){
-                return false;
-            }
-            
-            if (num.length > 1){
-                if (num.charAt(0) == 0 && num.charAt(1) != '.'){
-                    return false;
-                }
-            }
-            
-        }
-    }
+    
 }
 
 
-function JoinNumbers_ArrayFunc(array){
+function ParseInput(input){
+    let inputArray = input.split('');
     
     let returnArray = [];
     let num = [];
+    let isNeg = false;
 
-    for (let i=0; i<array.length; i++){
-        if (!operators.includes(array[i])){
-            num.push(array[i]);
+    for (let i=0; i<inputArray.length; i++){
+        let char = inputArray[i];
+
+        // check valid character
+        if (!validChar.includes(char)){
+            return undefined;
         }
-        else{
+
+
+        if (numbers.includes(char)){
+            num.push(char);
+            
+        }
+
+
+        if (operators.includes(char)){
+            if (char == '-' && (operators.includes(inputArray[i-1]) || i==0)){
+                isNeg = true;
+            }
+            else{
+                num = num.join('');
+                num = parseFloat(num);
+                if (isNeg == true){
+                    num = -num;
+                }
+                isNeg = false;
+                returnArray.push(num);
+                returnArray.push(char);
+
+                num = [];
+            }
+        }
+
+
+        if (i == inputArray.length-1){
             num = num.join('');
+            num = parseFloat(num);
+            if (isNeg == true){
+                num = -num;
+            }
+            isNeg = false;
             returnArray.push(num);
-            returnArray.push(array[i]);
 
             num = [];
-        }
-
-        if (i == array.length-1){
-            num = num.join('');
-            returnArray.push(num);
-
-            num = [];
-        }
-        
+        }        
     }
-
-    returnArray = returnArray.filter(elem => elem !== '');
 
     return returnArray;
 }
@@ -237,18 +317,6 @@ function ClearInput(){
 
 
 function InsertOperation(op){
-    if (input.value == ""){
-        if (op == "-"){
-            input.value = op;
-            return;
-        }
-        else{
-            return;
-        }
-    }
-
-    if (input.value.slice(-1) != " " && input.value.slice(-1) != "-"){
-        input.value += op;
-    }
+    
 }
 
